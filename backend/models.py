@@ -11,7 +11,7 @@ class ItemModel(Base):
         server_default=text("gen_random_uuid()")
     )
     name = Column(
-        String, 
+        String(255), 
         index=True, 
         unique=True
     )

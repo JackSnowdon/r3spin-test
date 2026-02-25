@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 from pydantic import BaseModel
 
-from backend import models
+from backend import models, schemas
 from backend.database import engine, Base, get_db
 
 
@@ -45,9 +45,15 @@ def list_items(db: Session = Depends(get_db)):
     raise HTTPException(status_code=501, detail="Not implemented")
 
 
-@app.post("/api/items")
-def create_item(item: Item, db: Session = Depends(get_db)):
-    raise HTTPException(status_code=501, detail="Not implemented")
+@app.post("/api/items", response_model=schemas.Item)
+def create_item(item: schemas.ItemCreate, db: Session = Depends(get_db)):
+    item = models.ItemModel(name=item.name)
+
+    db.add(item)
+    db.commit()
+    db.refresh(item)
+
+    return item
 
 
 @app.delete("/api/items/{item_id}")
