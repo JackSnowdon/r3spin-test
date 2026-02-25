@@ -1,11 +1,13 @@
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-
 from sqlalchemy.orm import Session
 from sqlalchemy import text
-from .database import engine, Base, get_db
-
 from pydantic import BaseModel
+
+from backend import models
+from backend.database import engine, Base, get_db
+
+
 
 
 # Defining Item Model
@@ -15,7 +17,7 @@ from pydantic import BaseModel
     - `name`: string
 """
 class Item(BaseModel):
-    id: int
+    id: str
     name: str
 
 
@@ -39,17 +41,17 @@ def health():
 
 
 @app.get("/api/items")
-def list_items():
+def list_items(db: Session = Depends(get_db)):
     raise HTTPException(status_code=501, detail="Not implemented")
 
 
 @app.post("/api/items")
-def create_item():
+def create_item(item: Item, db: Session = Depends(get_db)):
     raise HTTPException(status_code=501, detail="Not implemented")
 
 
 @app.delete("/api/items/{item_id}")
-def delete_item(item_id: int):
+def delete_item(item_id: int, db: Session = Depends(get_db)):
     raise HTTPException(status_code=501, detail="Not implemented")
 
 
