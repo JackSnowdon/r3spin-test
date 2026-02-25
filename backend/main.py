@@ -2,13 +2,12 @@ from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from sqlalchemy import text
+from typing import List
 from pydantic import BaseModel
+from uuid import UUID
 
 from backend import models, schemas
 from backend.database import engine, Base, get_db
-
-
-
 
 # Defining Item Model
 """
@@ -40,9 +39,9 @@ def health():
     return {"status": "ok"}
 
 
-@app.get("/api/items")
+@app.get("/api/items", response_model=List[schemas.Item])
 def list_items(db: Session = Depends(get_db)):
-    raise HTTPException(status_code=501, detail="Not implemented")
+    return db.query(models.ItemModel).all()
 
 
 @app.post("/api/items", response_model=schemas.Item)
@@ -57,8 +56,14 @@ def create_item(item: schemas.ItemCreate, db: Session = Depends(get_db)):
 
 
 @app.delete("/api/items/{item_id}")
-def delete_item(item_id: int, db: Session = Depends(get_db)):
-    raise HTTPException(status_code=501, detail="Not implemented")
+def delete_item(item_id: str, db: Session = Depends(get_db)):
+    item = db.query(models.ItemModel).filter(models.ItemModel.id == UUID(item_id)).first()
+    if not item:
+        raise HTTPException(status_code=404, detail=f"Item ({item_id}) not found")
+
+    db.delete(item)
+    db.commit()
+    return {"message": f"Item '{item.name}' has been deleted"}
 
 
 # testing database connection
