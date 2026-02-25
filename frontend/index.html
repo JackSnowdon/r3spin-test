@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Tech Test Frontend</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <main class="card">
+        <header class="header">
+            <div>
+                <h1>Items Dashboard</h1>
+                <p>Backend tech test — hook this UI to your API.</p>
+            </div>
+            <div class="badge">Python Backend</div>
+        </header>
+
+        <section class="field-row">
+            <input id="item-input" type="text" placeholder="Add an item (e.g. 'Write tech test')" />
+            <button id="add-btn">Add</button>
+        </section>
+
+        <ul id="items-list" class="list"></ul>
+
+        <div class="meta-row">
+            <div class="status">
+                <span id="status-dot" class="status-dot"></span>
+                <span id="status-text">Waiting for first request</span>
+            </div>
+            <span class="api-url">GET /api/items</span>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
