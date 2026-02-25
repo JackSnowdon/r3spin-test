@@ -9,6 +9,11 @@ load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
+"""
+Jack Notes, sample engine configuration from previous experinces,
+can be fine tuned in alignment with terraform/AWS Config in production
+"""
+
 engine = create_engine(
     DATABASE_URL,
     pool_size=20,

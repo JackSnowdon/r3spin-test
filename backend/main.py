@@ -9,28 +9,23 @@ from uuid import UUID
 from backend import models, schemas
 from backend.database import engine, Base, get_db
 
-# Defining Item Model
-"""
- - A persistent `Item` concept with at least:
-    - `id`: unique identifier (number or string)
-    - `name`: string
-"""
-class Item(BaseModel):
-    id: str
-    name: str
-
-
 app = FastAPI(title="Tech Test API", version="0.1.0")
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
 
+# CORS configuration to allow requests from local origins 
+# Would not be the case in production !!!
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "HTTP://localhost:8000",
+        "http://localhost:5173",
+    ],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 
@@ -51,7 +46,6 @@ def create_item(item: schemas.ItemCreate, db: Session = Depends(get_db)):
     db.add(item)
     db.commit()
     db.refresh(item)
-
     return item
 
 
@@ -66,7 +60,7 @@ def delete_item(item_id: str, db: Session = Depends(get_db)):
     return {"message": f"Item '{item.name}' has been deleted"}
 
 
-# testing database connection
+# Testing database connection
 @app.get("/test-db")
 def test_db(db: Session = Depends(get_db)):
     try:

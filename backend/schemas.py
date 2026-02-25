@@ -9,4 +9,4 @@ class Item(ItemCreate):
     id: UUID
 
     class Config:
-        from_attributes = True #SQLAlchemy ItemModel → Pydantic response
+        from_attributes = True # SQLAlchemy ItemModel → Pydantic response
