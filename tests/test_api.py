@@ -1,23 +1,37 @@
+import os
 import pytest
-from fastapi.testclient import TestClient
 
-from backend.models import ItemModel
-from backend.main import app
-from backend.database import get_db, Base
-from sqlalchemy import create_engine
+from dotenv import load_dotenv
+from fastapi.testclient import TestClient
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
-client = TestClient(app)
+from backend.main import app
+from backend.database import get_db, Base
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
-test_engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, 
-    connect_args={"check_same_thread": False}
+"""
+Jack Notes: I orginally went for sqlite testing, but ran into issues with UUID generation and table creation.
+So wired up PostgreSQL test database, which would be more alike to production and also
+resolves the issues I was facing with SQLite, which would have changed the models/database
+"""
+
+load_dotenv()
+
+TESTDB_URL = os.getenv("TESTDB_URL")
+test_engine = create_engine(TESTDB_URL)
+
+TestSessionLocal = sessionmaker(
+    autocommit=False, 
+    autoflush=False, 
+    bind=test_engine
 )
-TestingSessionLocal = sessionmaker(bind=test_engine)
 
+Base.metadata.drop_all(bind=test_engine)
+Base.metadata.create_all(bind=test_engine)
+
+# Override get_db to use test sessions
 def override_get_db():
-    db = TestingSessionLocal()
+    db = TestSessionLocal()
     try:
         yield db
     finally:
@@ -25,13 +39,19 @@ def override_get_db():
 
 app.dependency_overrides[get_db] = override_get_db
 
-@pytest.fixture(scope="function", autouse=True)
-def setup_test_db():
-    print("Tables registered:", list(Base.metadata.tables.keys()))  # Debug: ['items']
-    Base.metadata.drop_all(bind=test_engine)  # Clean first
-    Base.metadata.create_all(bind=test_engine)
+# Ensure clean state for each test
+
+@pytest.fixture(autouse=True)
+def cleanup_items():
+    with TestSessionLocal() as db:
+        db.execute(text(f"DELETE FROM items"))
+        db.commit()
     yield
-    Base.metadata.drop_all(bind=test_engine)
+    with TestSessionLocal() as db:
+        db.execute(text(f"DELETE FROM items"))
+        db.commit()
+
+client = TestClient(app)
 
 # Health Tests
 def test_health_check():
