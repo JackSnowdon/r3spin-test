@@ -4,7 +4,6 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from typing import List
-from pydantic import BaseModel
 from uuid import UUID
 import logging
 
@@ -21,7 +20,7 @@ logger = logging.getLogger(__name__)
 Base.metadata.create_all(bind=engine)
 
 # CORS configuration to allow requests from local origins 
-# Would not be the case in production !!!
+# Jack notes: Would not be the case in production !!!
 
 app.add_middleware(
     CORSMiddleware,

@@ -1,2 +1,6 @@
 .venv
 backend/__pycache__
+
+# Testing artifacts
+tests/__pycache__
+test.db
