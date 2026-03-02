@@ -13,7 +13,12 @@ from backend.database import get_db, Base
 Jack Notes: I orginally went for sqlite testing, but ran into issues with UUID generation and table creation.
 So wired up PostgreSQL test database, which would be more alike to production and also
 resolves the issues I was facing with SQLite, which would have changed the models/database
+
+I have updated the test setup to drop and recreate tables for each test to ensure a clean state, 
+and added debug logging to verify that the 'items' table is correctly registered in the metadata. 
+This should help resolve the "no such table: items" error during testing.
 """
+
 
 load_dotenv()
 
